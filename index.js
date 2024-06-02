@@ -5,8 +5,11 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Substitua pelo seu token de acesso permanente do Wrike
-const wrikeAccessToken = process.env.WRIKE_ACCESS_TOKEN;
+// Substitua pelos seus valores de OAuth do Wrike
+const wrikeClientId = process.env.WRIKE_CLIENT_ID;
+const wrikeClientSecret = process.env.WRIKE_CLIENT_SECRET;
+const wrikeRedirectUri = process.env.WRIKE_REDIRECT_URI;
+const wrikeWorkspaceUrl = 'https://www.wrike.com/workspace.htm'; // URL do workspace do Wrike
 
 app.use(bodyParser.json());
 
@@ -18,21 +21,33 @@ app.get('/', (req, res) => {
   res.send('Servidor está funcionando!');
 });
 
-// Endpoint para obter tarefas do Wrike
-app.get('/wrike/tasks', async (req, res) => {
-  console.log('Endpoint /wrike/tasks acessado');
+// Endpoint para iniciar o fluxo OAuth do Wrike
+app.get('/wrike/login', (req, res) => {
+  const wrikeAuthUrl = `https://login.wrike.com/oauth2/authorize/v4?client_id=${wrikeClientId}&response_type=code&redirect_uri=${wrikeRedirectUri}`;
+  res.redirect(wrikeAuthUrl);
+});
+
+// Endpoint de callback para o Wrike OAuth
+app.get('/callback', async (req, res) => {
+  const authCode = req.query.code;
+
   try {
-    const response = await axios.get('https://www.wrike.com/api/v4/tasks', {
-      headers: {
-        'Authorization': `Bearer ${wrikeAccessToken}`
+    const tokenResponse = await axios.post('https://login.wrike.com/oauth2/token', null, {
+      params: {
+        client_id: wrikeClientId,
+        client_secret: wrikeClientSecret,
+        grant_type: 'authorization_code',
+        code: authCode,
+        redirect_uri: wrikeRedirectUri
       }
     });
 
-    console.log('Resposta da API do Wrike:', response.data);
-    res.json(response.data);
+    const accessToken = tokenResponse.data.access_token;
+    console.log(`Access Token: ${accessToken}`);
+    res.redirect(wrikeWorkspaceUrl);
   } catch (error) {
-    console.error('Error fetching tasks from Wrike:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Error fetching access token from Wrike:', error.response ? error.response.data : error.message);
+    res.status(500).send('Erro ao obter token de acesso');
   }
 });
 
