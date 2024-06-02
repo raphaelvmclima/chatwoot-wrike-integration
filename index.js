@@ -28,6 +28,7 @@ app.get('/wrike/tasks', async (req, res) => {
       }
     });
 
+    console.log('Resposta da API do Wrike:', response.data);
     res.json(response.data);
   } catch (error) {
     console.error('Error fetching tasks from Wrike:', error);
