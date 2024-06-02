@@ -6,7 +6,7 @@ const cors = require('cors'); // Adiciona esta linha
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Substitua pelo seu token de acesso permanente do Wrike
+// Substitua pelos seus valores
 const wrikeAccessToken = process.env.WRIKE_ACCESS_TOKEN;
 const clientId = process.env.WRIKE_CLIENT_ID;
 const clientSecret = process.env.WRIKE_CLIENT_SECRET;
@@ -39,7 +39,7 @@ app.get('/callback', async (req, res) => {
         const accessToken = response.data.access_token;
         res.send(`Access Token: ${accessToken}`);
     } catch (error) {
-        console.error('Error getting access token:', error);
+        console.error('Error getting access token:', error.response.data);
         res.status(500).send('Error getting access token');
     }
 });
