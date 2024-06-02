@@ -51,6 +51,22 @@ app.get('/callback', async (req, res) => {
   }
 });
 
+// Endpoint para obter tarefas do Wrike
+app.get('/wrike/tasks', async (req, res) => {
+  try {
+    const response = await axios.get('https://www.wrike.com/api/v4/tasks', {
+      headers: {
+        'Authorization': `Bearer ${process.env.WRIKE_ACCESS_TOKEN}`
+      }
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching tasks from Wrike:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
