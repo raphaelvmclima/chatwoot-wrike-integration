@@ -15,6 +15,11 @@ const redirectUri = process.env.WRIKE_REDIRECT_URI;
 app.use(bodyParser.json());
 app.use(cors()); // Adiciona esta linha
 
+// Rota raiz para verificar se o servidor está funcionando
+app.get('/', (req, res) => {
+    res.send('Servidor está funcionando corretamente!');
+});
+
 // Rota de login para obter autorização do Wrike
 app.get('/wrike/login', (req, res) => {
     const authUrl = `https://login.wrike.com/oauth2/authorize/v4?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}`;
