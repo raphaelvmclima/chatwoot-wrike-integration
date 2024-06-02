@@ -10,6 +10,11 @@ const wrikeAccessToken = process.env.WRIKE_ACCESS_TOKEN;
 
 app.use(bodyParser.json());
 
+// Rota para o caminho raiz ("/")
+app.get('/', (req, res) => {
+  res.send('Servidor está funcionando!');
+});
+
 // Endpoint para obter tarefas do Wrike
 app.get('/wrike/tasks', async (req, res) => {
   try {
